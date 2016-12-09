@@ -15,6 +15,12 @@ def gen_neighbors(adj_list, author_ind):
         neighbors[e[1]] = neighbors[e[1]].union(set([e[0]]))
     return neighbors
 
+def build_year_dicts(adj_list):
+    edge_year_dict = {}
+    for e in adj_list:
+        edge_year_dict[(e[0], e[1])] = e[2]
+    return edge_year_dict
+
 def common_neighbors(pos_edges, neighbors, authors):
     ranking = []
     for a1, a2 in pos_edges:
@@ -73,6 +79,10 @@ def build_df(train=True, write=False, sample=0.999):
     author_ind = pickle.load(open(loc + '_author_ind.pkl', 'rb'))
     train_adj_list = pickle.load(open(loc + '_train_adj_list.pkl', 'rb'))
     test_adj_list = pickle.load(open(loc + '_test_adj_list.pkl', 'rb'))
+    
+    train_adj_list_with_year = pickle.load(open(loc + '_train_adj_list_with_year.pkl', 'rb'))
+    test_adj_list_with_year = pickle.load(open(loc + '_test_adj_list_with_year.pkl', 'rb'))
+
     num_authors = len(author_ind)
     authors = range(num_authors)
     all_edges = set([(min(a1, a2), max(a1, a2)) for (a1, a2) in \
@@ -99,6 +109,9 @@ def build_df(train=True, write=False, sample=0.999):
     neighbor_count = {}
     for d in range(1, max_dist + 1):
         neighbor_count[d] = (gen_neighbor_count(d, dist, num_authors))
+    edges_year_dict = {}
+
+
     # neighbor_count = np.vstack(neighbor_count)
 
     # pickle.dump(dist_m, open(category + '_dist_m.pkl', 'wb'))
@@ -109,15 +122,17 @@ def build_df(train=True, write=False, sample=0.999):
     if train:
         edges = all_edges
         actual_m = P_train
+        edges_year_dict = build_year_dicts(train_adj_list_with_year)
     else:
         edges = pos_edges
         actual_m = P_test
+        edges_year_dict = build_year_dicts(test_adj_list_with_year)
     
     edges = list(edges)
     dist_list, cn_list, aa_list = [], [], []
     n1_list_1, n2_list_1, n3_list_1, n4_list_1 = [], [], [], []
     n1_list_2, n2_list_2, n3_list_2, n4_list_2 = [], [], [], []
-    edge_list, edge_exist_list = [], []
+    year_list, edge_list, edge_exist_list = [], [], []
 
     count = 0
     for e in tqdm(edges):
@@ -136,17 +151,22 @@ def build_df(train=True, write=False, sample=0.999):
             n2_list_2.append(neighbor_count[2][e[1]])
             n3_list_2.append(neighbor_count[3][e[1]])
             n4_list_2.append(neighbor_count[4][e[1]])
+            year = None
+            if edges_year_dict.has_key(e):
+                year = edges_year_dict[e]
+            year_list.append(year)
             edge_exist_list.append(actual_m[e[0]][e[1]])
             count += 1
    
     d = {'edge':edge_list, 'common_neighbors':cn_list, 'adamic_adar':aa_list,
         'n1_node1':n1_list_1, 'n2_node1':n2_list_1, 'n3_node1':n3_list_1,
         'n4_node1':n4_list_1, 'n1_node2': n1_list_2, 'n2_node2': n2_list_2,
-        'n3_node2': n3_list_2, 'n4_node2': n4_list_2, 'target': edge_exist_list}    
+        'n3_node2': n3_list_2, 'n4_node2': n4_list_2, 'year':year_list, 
+        'target': edge_exist_list}    
     df = pd.DataFrame(data=d)
     cols = ['edge', 'common_neighbors', 'adamic_adar', 'n1_node1', 'n2_node1',
            'n3_node1', 'n4_node1', 'n1_node2', 'n2_node2', 'n3_node2', 'n4_node2',
-           'target']
+           'year', 'target']
     df = df[cols]
     
     if write:
