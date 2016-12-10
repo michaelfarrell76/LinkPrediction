@@ -2,3 +2,9 @@
 */.ipynb_checkpoints
 .DS_Store
 */.DS_Store
+data/astro-ph_aa_m.pkl
+data/astro-ph_cn_m.pkl
+data/astro-ph_dist_m.pkl
+data/astro-ph_dist.pkl
+data/astro-ph_test_df.csv
+data/astro-ph_train_df.csv
