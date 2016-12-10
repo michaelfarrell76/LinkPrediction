@@ -72,7 +72,7 @@ def fill_matrix(m, num_authors):
             m[j][i] = m[i][j]
     return m
 
-def build_df(train=True, write=False, sample=0.999):
+def build_df(train=True, write=False, sample=0.0):
     category = 'astro-ph'
     loc = 'data/' + category
     entries = pickle.load(open(loc + '_entries.pkl', 'rb'))
@@ -159,12 +159,12 @@ def build_df(train=True, write=False, sample=0.999):
             count += 1
    
     d = {'edge':edge_list, 'common_neighbors':cn_list, 'adamic_adar':aa_list,
-        'n1_node1':n1_list_1, 'n2_node1':n2_list_1, 'n3_node1':n3_list_1,
+        'dist': dist_list, 'n1_node1':n1_list_1, 'n2_node1':n2_list_1, 'n3_node1':n3_list_1,
         'n4_node1':n4_list_1, 'n1_node2': n1_list_2, 'n2_node2': n2_list_2,
         'n3_node2': n3_list_2, 'n4_node2': n4_list_2, 'year':year_list, 
         'target': edge_exist_list}    
     df = pd.DataFrame(data=d)
-    cols = ['edge', 'common_neighbors', 'adamic_adar', 'n1_node1', 'n2_node1',
+    cols = ['edge', 'common_neighbors', 'adamic_adar', 'dist', 'n1_node1', 'n2_node1',
            'n3_node1', 'n4_node1', 'n1_node2', 'n2_node2', 'n3_node2', 'n4_node2',
            'year', 'target']
     df = df[cols]
