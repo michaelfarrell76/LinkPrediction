@@ -138,7 +138,7 @@ def build_df(train=True, write=False, sample=0.999):
     for e in tqdm(edges):
         if aa_m[e[0]][e[1]] > 0.01 and cn_m[e[0]][e[1]] > 0 and \
             neighbor_count[1][e[0]] > 0 and neighbor_count[1][e[1]] > 0 \
-            or actual_m[e[0]][e[1]] > 0 or np.random.rand() > sample:
+            or np.random.rand() > sample:
             dist_list.append(dist_m[e[0]][e[1]])
             edge_list.append(e)
             cn_list.append(cn_m[e[0]][e[1]])
@@ -171,8 +171,8 @@ def build_df(train=True, write=False, sample=0.999):
     
     if write:
         if train:
-            train_df.to_csv(category + "_train_df.csv", index=False)
+            df.to_csv(category + "_train_df.csv", index=False)
         else:
-            test_df.to_csv(category + "_test_df.csv", index=False)
+            df.to_csv(category + "_test_df.csv", index=False)
     
     return df
